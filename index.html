@@ -533,8 +533,11 @@ $(document).ready(async function() {
     // 8. TAB SWITCH RE-CALCULATION FIX
     // ==========================================
     // When a hidden tab is clicked, force DataTables to recalculate the squished column widths
-    $(document).on('shown.bs.tab', '.nav-link[data-bs-toggle="tab"]', function () {
-        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+    $(document).on('shown.bs.tab', 'div[data-bs-toggle="tab"]', function () {
+        // A tiny 10-millisecond delay ensures the browser has fully rendered the tab before DataTables does its math
+        setTimeout(function() {
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        }, 10);
     });
 
     // Register Service Worker
