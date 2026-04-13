@@ -1,0 +1,21 @@
+{
+  "name": "HarmoniQ Music Repository",
+  "short_name": "HarmoniQ",
+  "description": "Your Personal Song Repository",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#764ba2",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/764ba2/FFFFFF?text=HQ",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/764ba2/FFFFFF?text=HQ",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
