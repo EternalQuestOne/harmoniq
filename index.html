@@ -18,16 +18,11 @@
         .search-section { flex-shrink: 0; background-color: #eef2f7; padding: 8px 0; margin-bottom: 10px; border-bottom: 1px solid #dce4ec; z-index: 4; }
         .container-fluid { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 15px; }
         .toolbar { flex-shrink: 0; background: white; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .nav-tabs { flex-shrink: 0; }
-        .nav-tabs .nav-link { color: #495057; font-weight: 500; }
-        .nav-tabs .nav-link.active { color: #0E2B4D; font-weight: bold; border-bottom: 3px solid #0E2B4D; }
-        .tab-content { flex: 1; overflow: hidden; background: white; padding: 15px 20px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        .tab-pane.active.show { display: flex !important; flex-direction: column; height: 100%; }
         
         /* Native DataTables Scroll Styling & Width Fix */
         .table-responsive { flex: 1; overflow: hidden; margin-top: 0; }
         .datatable { width: 100% !important; margin-top: 0 !important; }
-        .dataTables_scrollHeadInner, .dataTables_scrollHeadInner table { width: 100% !important; } /* FIXES SQUISHED HEADERS */
+        .dataTables_scrollHeadInner, .dataTables_scrollHeadInner table { width: 100% !important; } 
         .datatable thead tr.table-dark th { background-color: #212529; height: 45px; vertical-align: middle; border-bottom: none; color: white; }
         .datatable thead tr.filters-row th { background-color: #eef2f7; padding: 5px; border-bottom: 1px solid #dee2e6; }
         .filters-row input { width: 100%; padding: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; font-weight: normal; outline: none; }
@@ -48,6 +43,40 @@
         .delete-song { cursor: pointer; color: #dc3545; transition: transform 0.2s; }
         .delete-song:hover { transform: scale(1.2); color: #a71d2a; }
         .datalist-autocomplete { width: 100%; }
+
+        /* --- POLISHED UI STYLES --- */
+        /* Reduce Row Font Size */
+        .datatable tbody td { font-size: 0.85rem; padding: 5px 8px; vertical-align: middle; }
+        
+        /* Tab Borders & Dynamic Colors */
+        .nav-tabs { flex-shrink: 0; border-bottom: 2px solid #0E2B4D; gap: 3px; padding-left: 5px; }
+        .nav-tabs .nav-link { border: 1px solid #adb5bd; border-bottom: none; border-radius: 8px 8px 0 0; padding: 6px 12px; font-weight: 600; transition: all 0.2s ease; }
+        .nav-tabs .nav-link.tab-empty { background-color: #f8f9fa; color: #adb5bd; border-color: #dee2e6; } 
+        .nav-tabs .nav-link.tab-filled { background-color: #e3f2fd; color: #0E2B4D; border-color: #90caf9; } 
+        .nav-tabs .nav-link.active { background-color: #0E2B4D !important; color: white !important; border-color: #0E2B4D !important; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
+        
+        /* Tab Content Gap Reduction & Custom Tab Search Box */
+        .tab-content { flex: 1; overflow: hidden; background: white; padding: 5px 20px 15px 20px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .tab-pane.active.show { display: flex !important; flex-direction: column; height: 100%; }
+        .dataTables_wrapper > .row:first-child { margin-bottom: 5px !important; }
+        .dataTables_filter input { border: 2px solid #212529 !important; border-radius: 5px; padding: 3px 8px; }
+        
+        /* Custom Sorting Arrows */
+        table.dataTable thead > tr > th.sorting::before, 
+        table.dataTable thead > tr > th.sorting::after,
+        table.dataTable thead > tr > th.sorting_asc::before, 
+        table.dataTable thead > tr > th.sorting_asc::after,
+        table.dataTable thead > tr > th.sorting_desc::before, 
+        table.dataTable thead > tr > th.sorting_desc::after {
+            color: #A6A8A9 !important;
+            opacity: 1 !important;
+        }
+        table.dataTable thead > tr > th.sorting_asc::before { color: #6AC8F1 !important; }
+        table.dataTable thead > tr > th.sorting_desc::after { color: #6AC8F1 !important; }
+        
+        /* Specific Button Customizations */
+        #exportCurrentBtn { background-color: #0E8A2B !important; color: white !important; border: none; }
+        #exportCurrentBtn:hover { background-color: #0E8A2B !important; color: white !important; opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -69,12 +98,12 @@
         <div class="d-flex gap-2 align-items-center">
             <button class="btn btn-sm text-white" id="addTabBtn" style="background-color: #0E2B4D; border: none;"><strong>+</strong> Add Tab</button>
             <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addSongModal"><strong>+</strong> Add Song</button>
-            <button class="btn btn-sm btn-warning text-dark" id="deleteSelectedBtn"><b>-</b> Delete Selected</button>
+            <button class="btn btn-sm" id="deleteSelectedBtn" style="background-color: #EB8A6E; color: white; border: none;"><b>-</b> Delete Selected</button>
             <button class="btn btn-sm btn-danger" id="clearAllSongsBtn">🗑️ Clear All</button>
-            <button class="btn btn-sm btn-outline-success" id="exportCurrentBtn">📊 Export Tab</button>
+            <button class="btn btn-sm" id="exportCurrentBtn">📊 Export Tab</button>
             <button class="btn btn-sm btn-success" id="exportAllBtn">📑 Export All</button>
-            <label class="btn btn-sm btn-info mb-0 text-white" for="csvUpload" style="cursor: pointer;">📁 Upload CSV</label>
-            <input type="file" id="csvUpload" accept=".csv" style="display: none;">
+            <label class="btn btn-sm mb-0 text-white" for="csvUpload" style="background-color: #041833; cursor: pointer; border: none;">📁 Upload File</label>
+            <input type="file" id="csvUpload" accept=".csv, .xlsx, .xls" style="display: none;">
         </div>
         <div class="d-flex align-items-center gap-2">
             <label for="sortTabs" class="form-label mb-0 text-muted small">Sort:</label>
@@ -139,6 +168,25 @@ $(document).ready(async function() {
     let initialSongs = {}; 
 
     // ==========================================
+    // DYNAMIC TAB COLOR FUNCTION
+    // ==========================================
+    function updateTabColors() {
+        tabsData.forEach(tab => {
+            let table = dataTableInstances[`${tab.id}Table`];
+            let count = table ? table.rows().count() : (initialSongs[tab.id] ? initialSongs[tab.id].length : 0);
+            let tabLink = $(`[data-bs-target="#${tab.id}"]`);
+            
+            // Strip previous classes and apply new dynamic class
+            tabLink.removeClass('tab-empty tab-filled');
+            if (count > 0) {
+                tabLink.addClass('tab-filled');
+            } else {
+                tabLink.addClass('tab-empty');
+            }
+        });
+    }
+
+    // ==========================================
     // 2. FETCH DATA FROM CLOUD ON LOAD
     // ==========================================
     async function bootApp() {
@@ -177,21 +225,23 @@ $(document).ready(async function() {
             "pageLength": 100,
             "lengthMenu": [10, 25, 50, 100, 200],
             "orderCellsTop": true,
-            "scrollY": "calc(100vh - 290px)", // Expanded table height since top bars are smaller
-            "scrollCollapse": true
+            "scrollY": "calc(100vh - 290px)", 
+            "scrollCollapse": true,
+            "language": {
+                "search": "Tab Search:" // Changes the default Search text
+            }
         });
         dataTableInstances[tableId] = dt;
 
-        // NEW FILTER LOGIC: Listen to the wrapper to catch DataTables' cloned sticky headers
+        // Custom sticky header filter logic
         $(`#${tableId}_wrapper`).off('keyup change clear', '.filters-row input').on('keyup change clear', '.filters-row input', function(e) {
-            e.stopPropagation(); // Prevent clicks from triggering column sorting
-            let colIdx = $(this).data('column'); // Read the data-column tag we added in the HTML
+            e.stopPropagation(); 
+            let colIdx = $(this).data('column'); 
             if (colIdx !== undefined) {
                 dt.column(colIdx).search(this.value).draw();
             }
         });
 
-        // Force the built-in table search box to only search the Title column (Index 2)
         $(`#${tableId}_filter input`).off().on('keyup', function() {
             dt.column(2).search(this.value).draw();
         });
@@ -258,6 +308,7 @@ $(document).ready(async function() {
             }
         });
         updateAutocomplete();
+        updateTabColors(); // Color the tabs instantly
     }
 
     // ==========================================
@@ -352,9 +403,10 @@ $(document).ready(async function() {
             formValues.composer, formValues.lyricist, formValues.year, formValues.folder, data[0].id
         ]).draw(false);
 
-        songToTabMap[formValues.title] = activeTabId; // Update Map for Global Search Redirect
+        songToTabMap[formValues.title] = activeTabId; 
 
         updateAutocomplete();
+        updateTabColors();
         $('#addSongModal').modal('hide');
         $('#addSongForm')[0].reset();
     });
@@ -368,43 +420,83 @@ $(document).ready(async function() {
         let file = e.target.files[0];
         if (!file) return;
 
+        let fileName = file.name.toLowerCase();
         let reader = new FileReader();
-        reader.onload = async function(event) {
-            let csvData = event.target.result;
-            let rows = csvData.split(/\r?\n|\r/); 
-            let dataToAddDB = [];
-            let firstRow = rows[0] || "";
-            let delimiter = firstRow.includes(';') ? ';' : ',';
-            let startIndex = (firstRow.toLowerCase().includes('title')) ? 1 : 0;
 
-            for (let i = startIndex; i < rows.length; i++) {
-                if (rows[i].trim() === "") continue; 
-                let cols = rows[i].split(delimiter).map(col => col.replace(/^"|"$/g, '').trim());
-                while (cols.length < 7) cols.push(""); 
-                dataToAddDB.push({
-                    tab_id: activeTabId, sl: (baseSL + dataToAddDB.length + 1).toString(), 
-                    title: cols[0], subtitle: cols[1], artist: cols[2], composer: cols[3], 
-                    lyricist: cols[4], release_year: cols[5], folderpath: cols[6]
-                });
+        reader.onload = async function(event) {
+            let dataToAddDB = [];
+            
+            if (fileName.endsWith('.csv')) {
+                let csvData = event.target.result;
+                let rows = csvData.split(/\r?\n|\r/);
+                let firstRow = rows[0] || "";
+                let delimiter = firstRow.includes(';') ? ';' : ',';
+                let startIndex = (firstRow.toLowerCase().includes('title')) ? 1 : 0;
+
+                for (let i = startIndex; i < rows.length; i++) {
+                    if (rows[i].trim() === "") continue; 
+                    let cols = [];
+                    let currentStr = "";
+                    let inQuotes = false;
+                    let rowStr = rows[i];
+                    for (let j = 0; j < rowStr.length; j++) {
+                        let char = rowStr[j];
+                        if (char === '"') inQuotes = !inQuotes;
+                        else if (char === delimiter && !inQuotes) { cols.push(currentStr.trim()); currentStr = ""; }
+                        else currentStr += char;
+                    }
+                    cols.push(currentStr.trim());
+                    
+                    if (cols.join('').trim() === "") continue;
+                    while (cols.length < 7) cols.push(""); 
+                    dataToAddDB.push({
+                        tab_id: activeTabId, sl: (baseSL + dataToAddDB.length + 1).toString(), 
+                        title: cols[0], subtitle: cols[1], artist: cols[2], composer: cols[3], 
+                        lyricist: cols[4], release_year: cols[5], folderpath: cols[6]
+                    });
+                }
+            } else {
+                let data = new Uint8Array(event.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                let rows = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: ""}); 
+                let startIndex = (rows.length > 0 && rows[0].join('').toLowerCase().includes('title')) ? 1 : 0;
+
+                for (let i = startIndex; i < rows.length; i++) {
+                    let cols = rows[i];
+                    if (cols.join('').trim() === "") continue; 
+                    while (cols.length < 7) cols.push(""); 
+                    dataToAddDB.push({
+                        tab_id: activeTabId, sl: (baseSL + dataToAddDB.length + 1).toString(), 
+                        title: String(cols[0] || "").trim(), subtitle: String(cols[1] || "").trim(), 
+                        artist: String(cols[2] || "").trim(), composer: String(cols[3] || "").trim(), 
+                        lyricist: String(cols[4] || "").trim(), release_year: String(cols[5] || "").trim(), 
+                        folderpath: String(cols[6] || "").trim()
+                    });
+                }
             }
 
             if (dataToAddDB.length > 0) {
-                const { data, error } = await supabase.from('songs').insert(dataToAddDB).select();
-                if(error) return alert("Error uploading CSV to cloud.");
+                const { data: insertedData, error } = await supabase.from('songs').insert(dataToAddDB).select();
+                if(error) return alert("Error uploading file to cloud.");
 
-                let dataToAddUI = data.map(s => {
-                    songToTabMap[s.title] = activeTabId; // Update Map for Global Search Redirect
+                let dataToAddUI = insertedData.map(s => {
+                    songToTabMap[s.title] = activeTabId; 
                     return [
                         '<input type="checkbox" class="row-check">',
                         s.sl, s.title, s.subtitle, s.artist, s.composer, s.lyricist, s.release_year, s.folderpath, s.id
                     ];
                 });
+                
                 activeTable.rows.add(dataToAddUI).draw(false);
                 updateAutocomplete();
+                updateTabColors();
                 alert(`Successfully imported ${dataToAddDB.length} songs!`);
             }
         };
-        reader.readAsText(file);
+
+        if (fileName.endsWith('.csv')) reader.readAsText(file);
+        else reader.readAsArrayBuffer(file);
         $(this).val(''); 
     });
 
@@ -442,6 +534,7 @@ $(document).ready(async function() {
             activeTable.draw(false);
             $('.select-all-check').prop('checked', false);
             updateAutocomplete();
+            updateTabColors();
             alert("Selected songs deleted successfully.");
         }
     });
@@ -454,6 +547,7 @@ $(document).ready(async function() {
             if (error) return alert("Error clearing songs from cloud.");
             dataTableInstances[`${activeTabId}Table`].clear().draw();
             updateAutocomplete();
+            updateTabColors();
         }
     });
 
@@ -496,16 +590,11 @@ $(document).ready(async function() {
     // ==========================================
     $('#globalSearch').on('input keyup', function(e) {
         let searchTerm = this.value;
-        
-        // Show/Hide clear button
         $('#clearSearch').toggle(searchTerm.length > 0);
-
-        // Filter all tables by Title column only (Index 2)
         Object.values(dataTableInstances).forEach(dt => {
             dt.column(2).search(searchTerm).draw();
         });
 
-        // If selection is made from datalist, switch to the correct tab
         if (e.type === 'input' && songToTabMap[searchTerm]) {
             let targetTabId = songToTabMap[searchTerm];
             let tabTriggerEl = document.querySelector(`[data-bs-target="#${targetTabId}"]`);
@@ -515,7 +604,6 @@ $(document).ready(async function() {
         }
     });
 
-    // Clear Button Logic
     $('#clearSearch').on('click', function() {
         $('#globalSearch').val('').trigger('keyup');
     });
@@ -533,9 +621,7 @@ $(document).ready(async function() {
     // ==========================================
     // 8. TAB SWITCH RE-CALCULATION FIX
     // ==========================================
-    // When a hidden tab is clicked, force DataTables to recalculate the squished column widths
     $(document).on('shown.bs.tab', 'div[data-bs-toggle="tab"]', function () {
-        // A tiny 10-millisecond delay ensures the browser has fully rendered the tab before DataTables does its math
         setTimeout(function() {
             $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
         }, 10);
