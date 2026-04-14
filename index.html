@@ -23,8 +23,10 @@
         .table-responsive { flex: 1; overflow: hidden; margin-top: 0; }
         .datatable { width: 100% !important; margin-top: 0 !important; }
         .dataTables_scrollHeadInner, .dataTables_scrollHeadInner table { width: 100% !important; } 
-        .datatable thead tr.table-dark th { background-color: #212529; height: 45px; vertical-align: middle; border-bottom: none; color: white; }
-        .datatable thead tr.filters-row th { background-color: #eef2f7; padding: 5px; border-bottom: 1px solid #dee2e6; }
+        .datatable thead tr.table-dark th { background-color: #212529; height: 45px; vertical-align: middle; border-bottom: none; color: white; border-right: 1px solid #454d55; }
+        .datatable thead tr.table-dark th:last-child { border-right: none; }
+        .datatable thead tr.filters-row th { background-color: #eef2f7; padding: 5px; border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; }
+        .datatable thead tr.filters-row th:last-child { border-right: none; }
         .filters-row input { width: 100%; padding: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; font-weight: normal; outline: none; }
         .filters-row input:focus { border-color: #0E2B4D; box-shadow: 0 0 3px rgba(14, 43, 77, 0.3); }
 
