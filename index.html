@@ -61,16 +61,22 @@
         .dataTables_wrapper > .row:first-child { margin-bottom: 5px !important; }
         .dataTables_filter input { border: 2px solid #212529 !important; border-radius: 5px; padding: 3px 8px; }
         
-        /* Custom Sorting Arrows */
+        /* Custom Sorting Arrows & Gap Adjustment */
         table.dataTable thead > tr > th.sorting::before, 
-        table.dataTable thead > tr > th.sorting::after,
         table.dataTable thead > tr > th.sorting_asc::before, 
-        table.dataTable thead > tr > th.sorting_asc::after,
-        table.dataTable thead > tr > th.sorting_desc::before, 
-        table.dataTable thead > tr > th.sorting_desc::after {
+        table.dataTable thead > tr > th.sorting_desc::before {
+            bottom: 55% !important; /* Pushes the UP arrow higher */
             color: #A6A8A9 !important;
             opacity: 1 !important;
         }
+        table.dataTable thead > tr > th.sorting::after, 
+        table.dataTable thead > tr > th.sorting_asc::after, 
+        table.dataTable thead > tr > th.sorting_desc::after {
+            top: 55% !important; /* Pushes the DOWN arrow lower */
+            color: #A6A8A9 !important;
+            opacity: 1 !important;
+        }
+        /* Active Sorting Colors */
         table.dataTable thead > tr > th.sorting_asc::before { color: #6AC8F1 !important; }
         table.dataTable thead > tr > th.sorting_desc::after { color: #6AC8F1 !important; }
         
@@ -222,6 +228,7 @@ $(document).ready(async function() {
                 { "targets": [0], "orderable": false }, 
                 { "targets": [9], "visible": false, "searchable": false } 
             ],
+            "order": [[1, 'asc']], // Explicitly tells DataTables to sort by SL (Column 1) by default
             "pageLength": 100,
             "lengthMenu": [10, 25, 50, 100, 200],
             "orderCellsTop": true,
