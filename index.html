@@ -14,8 +14,8 @@
     <style>
         /* App Layout - Prevents full page scroll */
         body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; margin: 0; }
-        .header-container { flex-shrink: 0; background-color: #0E2B4D; padding: 10px 0; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5; }
-        .search-section { flex-shrink: 0; background-color: #eef2f7; padding: 15px 0; margin-bottom: 15px; border-bottom: 1px solid #dce4ec; z-index: 4; }
+        .header-container { flex-shrink: 0; background-color: #0E2B4D; padding: 5px 0; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5; }
+        .search-section { flex-shrink: 0; background-color: #eef2f7; padding: 8px 0; margin-bottom: 10px; border-bottom: 1px solid #dce4ec; z-index: 4; }
         .container-fluid { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 15px; }
         .toolbar { flex-shrink: 0; background: white; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
         .nav-tabs { flex-shrink: 0; }
@@ -24,9 +24,10 @@
         .tab-content { flex: 1; overflow: hidden; background: white; padding: 15px 20px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
         .tab-pane.active.show { display: flex !important; flex-direction: column; height: 100%; }
         
-        /* Native DataTables Scroll Styling */
+        /* Native DataTables Scroll Styling & Width Fix */
         .table-responsive { flex: 1; overflow: hidden; margin-top: 0; }
         .datatable { width: 100% !important; margin-top: 0 !important; }
+        .dataTables_scrollHeadInner, .dataTables_scrollHeadInner table { width: 100% !important; } /* FIXES SQUISHED HEADERS */
         .datatable thead tr.table-dark th { background-color: #212529; height: 45px; vertical-align: middle; border-bottom: none; color: white; }
         .datatable thead tr.filters-row th { background-color: #eef2f7; padding: 5px; border-bottom: 1px solid #dee2e6; }
         .filters-row input { width: 100%; padding: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; font-weight: normal; outline: none; }
@@ -34,7 +35,7 @@
 
         /* UI Elements */
         .search-container { position: relative; max-width: 850px; margin: 0 auto; padding: 0 15px; }
-        .custom-search { width: 100%; padding: 10px 20px; border: 2px solid #0E2B4D; border-radius: 25px; font-size: 1rem; color: #0E2B4D; outline: none; transition: box-shadow 0.3s ease; }
+        .custom-search { width: 100%; padding: 6px 15px; border: 2px solid #0E2B4D; border-radius: 20px; font-size: 0.9rem; color: #0E2B4D; outline: none; transition: box-shadow 0.3s ease; }
         .custom-search::placeholder { color: #6b7a8f; font-style: italic; }
         .custom-search:focus { box-shadow: 0 0 8px rgba(11, 25, 48, 0.4); }
         #clearSearch { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none; font-weight: bold; color: #0E2B4D; font-size: 1.2rem; z-index: 5; }
@@ -52,7 +53,7 @@
 <body>
 
 <div class="header-container">
-    <img src="./logo.png" alt="HarmoniQ Logo" style="max-height: 85px; width: auto; display: block;">
+    <img src="./logo.png" alt="HarmoniQ Logo" style="max-height: 60px; width: auto; display: block;">
 </div>
 
 <div class="search-section">
@@ -176,7 +177,7 @@ $(document).ready(async function() {
             "pageLength": 100,
             "lengthMenu": [10, 25, 50, 100, 200],
             "orderCellsTop": true,
-            "scrollY": "calc(100vh - 380px)", // Native DataTables scroll lock
+            "scrollY": "calc(100vh - 290px)", // Expanded table height since top bars are smaller
             "scrollCollapse": true
         });
         dataTableInstances[tableId] = dt;
