@@ -25,7 +25,7 @@
         .dataTables_scrollHeadInner, .dataTables_scrollHeadInner table { width: 100% !important; } 
         
         /* ADDED VERTICAL DIVIDERS TO HEADERS */
-        .datatable thead tr:first-child th { background-color: #212529; height: 45px; vertical-align: middle; border-bottom: none; color: white; border-right: 1px solid #6c757d !important; }
+        .datatable thead tr:first-child th { background-color: #212529; padding: 4px 22px 4px 10px !important; height: auto; font-size: 0.85rem; vertical-align: middle; border-bottom: none; color: white; border-right: 1px solid #6c757d !important; }
         .datatable thead tr:first-child th:last-child { border-right: none !important; }
         .datatable thead tr.filters-row th { background-color: #eef2f7; padding: 5px; border-bottom: 1px solid #dee2e6; border-right: 1px solid #ced4da !important; }
         .datatable thead tr.filters-row th:last-child { border-right: none !important; }
@@ -70,16 +70,18 @@
         table.dataTable thead > tr > th.sorting::before, 
         table.dataTable thead > tr > th.sorting_asc::before, 
         table.dataTable thead > tr > th.sorting_desc::before {
-            bottom: 55% !important; /* Pushes the UP arrow higher */
+            bottom: 12px !important; /* Locks UP arrow perfectly above center */
             color: #A6A8A9 !important;
             opacity: 1 !important;
         }
         table.dataTable thead > tr > th.sorting::after, 
         table.dataTable thead > tr > th.sorting_asc::after, 
         table.dataTable thead > tr > th.sorting_desc::after {
-            top: 55% !important; /* Pushes the DOWN arrow lower */
+            top: auto !important; /* Removes previous top percentage */
+            bottom: 2px !important;  /* Locks DOWN arrow perfectly below center */
             color: #A6A8A9 !important;
             opacity: 1 !important;
+        }
         }
         /* Active Sorting Colors */
         table.dataTable thead > tr > th.sorting_asc::before { color: #6AC8F1 !important; }
