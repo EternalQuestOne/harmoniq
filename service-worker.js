@@ -1,4 +1,4 @@
-const CACHE_NAME = 'harmoniq-cache-v26'; 
+const CACHE_NAME = 'harmoniq-cache-v46'; 
 const urlsToCache = [
   './',
   './index.html',

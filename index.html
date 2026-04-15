@@ -12,86 +12,89 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     
     <style>
-        /* App Layout - Prevents full page scroll */
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; margin: 0; }
+        /* App Layout */
+        body { background-color: #f0f4f8; font-family: 'Segoe UI', Tahoma, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; margin: 0; }
         .header-container { flex-shrink: 0; background-color: #0E2B4D; padding: 5px 0; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5; }
-        .search-section { flex-shrink: 0; background-color: #eef2f7; padding: 8px 0; margin-bottom: 10px; border-bottom: 1px solid #dce4ec; z-index: 4; }
-        .container-fluid { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 15px; }
-        .toolbar { flex-shrink: 0; background: white; padding: 10px 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .search-section { flex-shrink: 0; background-color: #eef2f7; padding: 10px 0; border-bottom: 1px solid #dce4ec; z-index: 4; }
         
-        /* Native DataTables Scroll Styling & Width Fix */
+        /* Master-Detail Container Logic */
+        .app-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 15px; }
+        #view-dashboard { flex: 1; overflow-y: auto; overflow-x: hidden; }
+        #view-detail { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Dashboard Cards (The Capsule Redesign) */
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; padding-bottom: 20px; }
+        
+        .tab-card { background: white; border-radius: 50px; padding: 6px 20px 6px 6px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 12px; }
+        .tab-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+        .tab-card.filled { border-left: 5px solid #0E8A2B; background-color: #a2dcf7; } 
+        .tab-card.empty { border-left: 5px solid #94a3b8; background-color: #ffffff; opacity: 0.8; }
+        
+        /* The Circular Image */
+        .tab-card-img-wrapper { width: 45px; height: 45px; border-radius: 50%; background-color: #0E2B4D; flex-shrink: 0; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .tab-card-img { width: 100%; height: 100%; object-fit: cover; }
+        .tab-card-img-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.2s; }
+        .tab-card-img-wrapper:hover .tab-card-img-overlay { opacity: 1; }
+        .img-action { color: white; cursor: pointer; font-size: 0.8rem; margin: 1px 0; transition: transform 0.2s; }
+        .img-action:hover { transform: scale(1.3); }
+
+        /* Capsule Text */
+        .tab-card-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .tab-card-title { font-weight: 600; color: #1e293b; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Actions */
+        .tab-card-actions { display: none; gap: 8px; font-size: 0.85rem; margin-left: 5px; }
+        .tab-card:hover .tab-card-actions { display: flex; }
+        .tab-card-actions span { transition: transform 0.2s; }
+        .tab-card-actions span:hover { transform: scale(1.3); }
+
+        /* Clean Text Back Button */
+        #backToHomeBtn { background: transparent; color: #0E2B4D; border: none; padding: 4px 10px; border-radius: 8px; transition: all 0.2s ease; cursor: pointer; outline: none; }
+        #backToHomeBtn:hover { background-color: rgba(14, 43, 77, 0.08); transform: translateY(-50%) translateX(-3px) !important; color: #091d34; }
+        .toolbar { flex-shrink: 0; background: white; padding: 10px 20px; border-radius: 10px 10px 0 0; border-bottom: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .tab-content { flex: 1; overflow: hidden; background: white; padding: 2px 20px 15px 20px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .tab-pane.active.show { display: flex !important; flex-direction: column; height: 100%; }
+        
+        /* Native DataTables Fixes & Dividers */
         .table-responsive { flex: 1; overflow: hidden; margin-top: 0; }
         .datatable { width: 100% !important; margin-top: 0 !important; }
         .dataTables_scrollHeadInner, .dataTables_scrollHeadInner table { width: 100% !important; } 
-        
-        /* ADDED VERTICAL DIVIDERS TO HEADERS */
-        .datatable thead tr:first-child th { background-color: #212529; padding: 4px 22px 4px 10px !important; height: auto; font-size: 0.85rem; vertical-align: middle; border-bottom: none; color: white; border-right: 1px solid #6c757d !important; }
+        .datatable thead tr:first-child th { background-color: #212529; padding: 6px 22px 6px 8px !important; height: auto; font-size: 0.85rem; line-height: 1 !important; vertical-align: middle !important; text-align: left !important; border-bottom: none; color: white; border-right: 1px solid #6c757d !important; position: relative; }
         .datatable thead tr:first-child th:last-child { border-right: none !important; }
+        .select-all-check { margin: 0 !important; vertical-align: middle !important; position: relative; top: -1px !important; transform: none !important; cursor: pointer; }
         .datatable thead tr.filters-row th { background-color: #eef2f7; padding: 5px; border-bottom: 1px solid #dee2e6; border-right: 1px solid #ced4da !important; }
         .datatable thead tr.filters-row th:last-child { border-right: none !important; }
         
-        .filters-row input { width: 100%; padding: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; font-weight: normal; outline: none; }
-        .filters-row input:focus { border-color: #0E2B4D; box-shadow: 0 0 3px rgba(14, 43, 77, 0.3); }
-
-        /* UI Elements */
+        /* Search Bars Polishing */
         .search-container { position: relative; max-width: 850px; margin: 0 auto; padding: 0 15px; }
-        .custom-search { width: 100%; padding: 6px 15px; border: 2px solid #0E2B4D; border-radius: 20px; font-size: 0.9rem; color: #0E2B4D; outline: none; transition: box-shadow 0.3s ease; }
-        .custom-search::placeholder { color: #6b7a8f; font-style: italic; }
-        .custom-search:focus { box-shadow: 0 0 8px rgba(11, 25, 48, 0.4); }
-        #clearSearch { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none; font-weight: bold; color: #0E2B4D; font-size: 1.2rem; z-index: 5; }
-        #clearSearch:hover { color: #dc3545; }
-        .tab-actions { display: none; font-size: 0.8rem; margin-left: 10px; }
-        .nav-item:hover .tab-actions { display: flex; gap: 8px; }
-        .tab-actions span { cursor: pointer; transition: transform 0.2s; }
-        .tab-actions span:hover { transform: scale(1.3); }
-        .nav-item .nav-link { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .delete-song { cursor: pointer; color: #dc3545; transition: transform 0.2s; }
-        .delete-song:hover { transform: scale(1.2); color: #a71d2a; }
-        .datalist-autocomplete { width: 100%; }
+        .custom-search, .dashboard-search { width: 100%; border: 1px solid #cbd5e1; border-radius: 20px; outline: none; transition: all 0.3s ease; background-color: white; }
+        .custom-search { padding: 8px 15px; font-size: 0.95rem; color: #0E2B4D; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+        .dashboard-search { padding: 6px 15px; font-size: 0.9rem; max-width: 300px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.03); }
+        .custom-search:focus, .dashboard-search:focus { border-color: #0E2B4D; box-shadow: 0 0 0 3px rgba(14, 43, 77, 0.15), inset 0 1px 2px rgba(0,0,0,0.05); }
+        .filters-row input { width: 100%; padding: 4px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9em; outline: none; transition: border-color 0.2s; }
+        .filters-row input:focus { border-color: #0E2B4D; box-shadow: 0 0 3px rgba(14, 43, 77, 0.2); }
+        .dataTables_wrapper > .row:first-child { margin-bottom: 10px !important; align-items: center; }
+        .dataTables_filter input { border: 1px solid #cbd5e1 !important; border-radius: 20px; padding: 4px 15px; font-size: 0.9rem; outline: none; transition: all 0.3s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,0.03); }
+        .dataTables_filter input:focus { border-color: #0E2B4D !important; box-shadow: 0 0 0 3px rgba(14, 43, 77, 0.15) !important; }
 
-        /* --- POLISHED UI STYLES --- */
-        /* Reduce Row Font Size */
+        #clearSearch { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none; font-weight: bold; color: #94a3b8; font-size: 1.2rem; z-index: 5; transition: color 0.2s; }
+        #clearSearch:hover { color: #dc3545; }
+
+        /* Data Row Font Size */
         .datatable tbody td { font-size: 0.85rem; padding: 5px 8px; vertical-align: middle; }
         
-        /* Tab Borders & Dynamic Colors */
-        .nav-tabs { flex-shrink: 0; border-bottom: 2px solid #0E2B4D; gap: 3px; padding-left: 5px; }
-        .nav-tabs .nav-link { border: 1px solid #adb5bd; border-bottom: none; border-radius: 8px 8px 0 0; padding: 6px 12px; font-weight: 600; transition: all 0.2s ease; }
-        .nav-tabs .nav-link.tab-empty { background-color: #f8f9fa; color: #adb5bd; border-color: #dee2e6; } 
-        .nav-tabs .nav-link.tab-filled { background-color: #e3f2fd; color: #0E2B4D; border-color: #90caf9; } 
-        .nav-tabs .nav-link.active { background-color: #0E2B4D !important; color: white !important; border-color: #0E2B4D !important; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
-        
-        /* Tab Content Gap Reduction & Custom Tab Search Box */
-        .tab-content { flex: 1; overflow: hidden; background: white; padding: 5px 20px 15px 20px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        .tab-pane.active.show { display: flex !important; flex-direction: column; height: 100%; }
-        .dataTables_wrapper > .row:first-child { margin-bottom: 5px !important; }
-        .dataTables_filter input { border: 2px solid #212529 !important; border-radius: 5px; padding: 3px 8px; }
-        
-        /* Custom Sorting Arrows & Gap Adjustment */
-        table.dataTable thead > tr > th.sorting::before, 
-        table.dataTable thead > tr > th.sorting_asc::before, 
-        table.dataTable thead > tr > th.sorting_desc::before {
-            bottom: 12px !important; /* Pushed higher to create a gap */
-            font-size: 0.75rem !important; /* Slightly smaller to fit slim header */
-            color: #A6A8A9 !important;
-            opacity: 1 !important;
-        }
-        table.dataTable thead > tr > th.sorting::after, 
-        table.dataTable thead > tr > th.sorting_asc::after, 
-        table.dataTable thead > tr > th.sorting_desc::after {
-            top: auto !important; 
-            bottom: 1.5px !important; /* Pushed lower to create a gap */
-            font-size: 0.75rem !important; /* Slightly smaller to fit slim header */
-            color: #A6A8A9 !important;
-            opacity: 1 !important;
-        }
-        
-        /* Active Sorting Colors */
+        /* Custom Sorting Arrows */
+        table.dataTable thead > tr > th.sorting::before, table.dataTable thead > tr > th.sorting_asc::before, table.dataTable thead > tr > th.sorting_desc::before { top: 50% !important; bottom: auto !important; margin-top: -8px !important; transform: none !important; font-size: 0.7rem !important; color: #A6A8A9 !important; opacity: 1 !important; right: 6px !important; }
+        table.dataTable thead > tr > th.sorting::after, table.dataTable thead > tr > th.sorting_asc::after, table.dataTable thead > tr > th.sorting_desc::after { top: 50% !important; bottom: auto !important; margin-top: 1px !important; transform: none !important; font-size: 0.7rem !important; color: #A6A8A9 !important; opacity: 1 !important; right: 6px !important; }
         table.dataTable thead > tr > th.sorting_asc::before { color: #6AC8F1 !important; }
         table.dataTable thead > tr > th.sorting_desc::after { color: #6AC8F1 !important; }
-        
-        /* Specific Button Customizations */
+
+        /* Custom Button Colors */
         #exportCurrentBtn { background-color: #0E8A2B !important; color: white !important; border: none; }
-        #exportCurrentBtn:hover { background-color: #0E8A2B !important; color: white !important; opacity: 0.9; }
+        #exportCurrentBtn:hover { opacity: 0.9; }
+        #deleteSelectedBtn { background-color: #EB8A6E !important; color: white !important; border: none; }
+        #csvUploadBtn { background-color: #041833 !important; border: none; }
     </style>
 </head>
 <body>
@@ -99,39 +102,61 @@
 <div class="header-container">
     <img src="./logo.png" alt="HarmoniQ Logo" style="max-height: 60px; width: auto; display: block;">
 </div>
-
-<div class="search-section">
+<div class="search-section" style="position: relative;">
+    <button class="d-none" id="backToHomeBtn" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); z-index: 10; display: flex; align-items: center; gap: 6px;">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzBFMkI0RCI+PHBhdGggZD0iTTIwIDEwSDcuNDFsNC4yOS00LjI5YTIgMiAwIDEgMC0yLjgyLTIuODNsLTcuNTkgNy41OWEyIDIgMCAwIDAgMCAyLjgzbDcuNTkgNy41OWEyIDIgMCAxIDAgMi44Mi0yLjgzTDcuNDEgMTRIMjBhMiAyIDAgMCAwIDAtNHoiLz48L3N2Zz4=" style="width: 22px; height: 22px;" alt="Back Arrow">
+        <span style="font-size: 1.1rem; font-weight: 700;">Back</span>
+    </button>
     <div class="search-container">
-        <input class="custom-search" list="songNames" id="globalSearch" placeholder="🔍 Search by Title across all tabs...">
+        <input class="custom-search" list="songNames" id="globalSearch" placeholder="🔍 Search by Song Title across ALL categories...">
         <span id="clearSearch" title="Clear search">✕</span>
         <datalist id="songNames"></datalist>
     </div>
 </div>
 
-<div class="container-fluid px-4">
-    <div class="toolbar">
-        <div class="d-flex gap-2 align-items-center">
-            <button class="btn btn-sm text-white" id="addTabBtn" style="background-color: #0E2B4D; border: none;"><strong>+</strong> Add Tab</button>
-            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addSongModal"><strong>+</strong> Add Song</button>
-            <button class="btn btn-sm" id="deleteSelectedBtn" style="background-color: #EB8A6E; color: white; border: none;"><b>-</b> Delete Selected</button>
-            <button class="btn btn-sm btn-danger" id="clearAllSongsBtn">🗑️ Clear All</button>
-            <button class="btn btn-sm" id="exportCurrentBtn">📊 Export Tab</button>
-            <button class="btn btn-sm btn-success" id="exportAllBtn">📑 Export All</button>
-            <label class="btn btn-sm mb-0 text-white" for="csvUpload" style="background-color: #041833; cursor: pointer; border: none;">📁 Upload File</label>
-            <input type="file" id="csvUpload" accept=".csv, .xlsx, .xls" style="display: none;">
+<div class="app-body">
+    
+    <div id="view-dashboard">
+        <div class="dashboard-header">
+            <div style="position: relative; width: 100%; max-width: 300px;">
+                <input type="text" id="dashboardFilter" class="dashboard-search" list="categoryDropdown" placeholder="Find Categories..." style="width: 100%;">
+                <datalist id="categoryDropdown"></datalist>
+            </div>
+            <input type="file" id="hiddenImgUpload" accept="image/*" style="display: none;">
+            
+            <div class="d-flex gap-2">
+                <select id="sortTabs" class="form-select form-select-sm" style="width: auto; cursor: pointer; border-radius: 8px;">
+                    <option value="asc">Sort A - Z</option>
+                    <option value="desc">Sort Z - A</option>
+                </select>
+                <button class="btn btn-sm text-white px-3" id="addTabBtn" style="background-color: #0E2B4D; border: none; border-radius: 8px;"><strong>+</strong> Add Category</button>
+            </div>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <label for="sortTabs" class="form-label mb-0 text-muted small">Sort:</label>
-            <select id="sortTabs" class="form-select form-select-sm" style="width: auto; cursor: pointer;">
-                <option value="asc">A - Z</option>
-                <option value="desc">Z - A</option>
-            </select>
-        </div>
+        <div class="tab-grid" id="tabGridContainer">
+            </div>
     </div>
 
-    <ul class="nav nav-tabs" id="myTab" role="tablist"></ul>
+    <div id="view-detail" class="d-none">
+        <div class="toolbar">
+            <div class="d-flex align-items-center gap-3">
+                <img id="detailCategoryImg" src="" alt="Category Icon" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 3px solid #e2e8f0; background-color: #0E2B4D; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <h4 class="m-0 fw-bold text-dark" id="activeCategoryLabel">Category Name</h4>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addSongModal"><strong>+</strong> Add Song</button>
+                <button class="btn btn-sm" id="deleteSelectedBtn"><b>-</b> Delete Selected</button>
+                <button class="btn btn-sm btn-danger" id="clearAllSongsBtn">🗑️ Clear All</button>
+                <button class="btn btn-sm" id="exportCurrentBtn">📊 Export Tab</button>
+                <button class="btn btn-sm btn-success" id="exportAllBtn">📑 Export All</button>
+                <label class="btn btn-sm mb-0 text-white" id="csvUploadBtn" for="csvUpload" style="cursor: pointer;">📁 Upload File</label>
+                <input type="file" id="csvUpload" accept=".csv, .xlsx, .xls" style="display: none;">
+            </div>
+        </div>
 
-    <div class="tab-content" id="myTabContent"></div>
+        <ul class="nav nav-tabs d-none" id="myTab" role="tablist"></ul>
+        <div class="tab-content" id="myTabContent"></div>
+    </div>
+
 </div>
 
 <div class="modal fade" id="addSongModal" tabindex="-1" aria-hidden="true">
@@ -181,25 +206,8 @@ $(document).ready(async function() {
     let currentSort = 'asc';
     let dataTableInstances = {}; 
     let initialSongs = {}; 
-
-    // ==========================================
-    // DYNAMIC TAB COLOR FUNCTION
-    // ==========================================
-    function updateTabColors() {
-        tabsData.forEach(tab => {
-            let table = dataTableInstances[`${tab.id}Table`];
-            let count = table ? table.rows().count() : (initialSongs[tab.id] ? initialSongs[tab.id].length : 0);
-            let tabLink = $(`[data-bs-target="#${tab.id}"]`);
-            
-            // Strip previous classes and apply new dynamic class
-            tabLink.removeClass('tab-empty tab-filled');
-            if (count > 0) {
-                tabLink.addClass('tab-filled');
-            } else {
-                tabLink.addClass('tab-empty');
-            }
-        });
-    }
+    // Bulletproof Base64 Encoded SVG - Global Default
+    let defaultImg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9Ii00IC00IDMyIDMyIiBmaWxsPSIjZmZmZmZmIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGQ9Ik0yMSAzSDEwdjEwLjU1Yy0uNTktLjM0LTEuMjctLjU1LTItLjU1LTIuMjEgMC00IDEuNzktNCA0czEuNzkgNCA0IDQgNC0xLjc5IDQtNFY3aDl2Ny41NWMtLjU5LS4zNC0xLjI3LS41NS0yLS41NS0yLjIxIDAtNCAxLjc5LTQgNHMxLjc5IDQgNCA0IDQtMS43OSA0LTRWM3oiLz48L3N2Zz4='; 
 
     // ==========================================
     // 2. FETCH DATA FROM CLOUD ON LOAD
@@ -225,7 +233,7 @@ $(document).ready(async function() {
                 songToTabMap[song.title] = song.tab_id; 
             });
         }
-        renderTabs();
+        renderDashboardAndTabs();
     }
 
     function initDataTable(tableId, tabId) {
@@ -237,25 +245,22 @@ $(document).ready(async function() {
                 { "targets": [0], "orderable": false }, 
                 { "targets": [9], "visible": false, "searchable": false } 
             ],
-            "order": [[1, 'asc']], // Explicitly tells DataTables to sort by SL (Column 1) by default
+            "order": [[1, 'asc']], 
             "pageLength": 100,
             "lengthMenu": [10, 25, 50, 100, 200],
             "orderCellsTop": true,
-            "scrollY": "calc(100vh - 290px)", 
+            "scrollY": "calc(100vh - 310px)", // Adjusted for detail view height
             "scrollCollapse": true,
             "language": {
-                "search": "Tab Search:" // Changes the default Search text
+                "search": "Tab Search:" 
             }
         });
         dataTableInstances[tableId] = dt;
 
-        // Custom sticky header filter logic
         $(`#${tableId}_wrapper`).off('keyup change clear', '.filters-row input').on('keyup change clear', '.filters-row input', function(e) {
             e.stopPropagation(); 
             let colIdx = $(this).data('column'); 
-            if (colIdx !== undefined) {
-                dt.column(colIdx).search(this.value).draw();
-            }
+            if (colIdx !== undefined) dt.column(colIdx).search(this.value).draw();
         });
 
         $(`#${tableId}_filter input`).off().on('keyup', function() {
@@ -263,54 +268,65 @@ $(document).ready(async function() {
         });
     }
 
-    function renderTabs() {
-        tabsData.sort((a, b) => {
-            let cmp = a.name.localeCompare(b.name);
-            return currentSort === 'asc' ? cmp : -cmp;
-        });
+    function renderDashboardAndTabs() {
+        tabsData.sort((a, b) => { return currentSort === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name); });
 
-        const $tabList = $('#myTab');
+        const $tabGrid = $('#tabGridContainer');
+        const $hiddenNavList = $('#myTab');
         const $tabContent = $('#myTabContent');
-        let activeId = $tabList.find('.nav-link.active').attr('data-bs-target')?.replace('#', '');
-        if (!tabsData.find(t => t.id === activeId) && tabsData.length > 0) activeId = tabsData[0].id;
-        $tabList.empty();
+        const $categoryDropdown = $('#categoryDropdown');
         
+        $tabGrid.empty();
+        $hiddenNavList.empty();
+        $categoryDropdown.empty();
+        
+        // defaultImg is now defined globally at the top
+
         tabsData.forEach((tab) => {
-            let isActive = tab.id === activeId;
-            let tabHTML = `
-            <li class="nav-item" role="presentation">
-                <div class="nav-link ${isActive ? 'active' : ''}" data-bs-toggle="tab" data-bs-target="#${tab.id}" role="tab">
-                    <span>${tab.name}</span>
-                    <div class="tab-actions">
-                        <span class="edit-tab" data-id="${tab.id}" title="Edit Tab">✏️</span>
-                        <span class="delete-tab" data-id="${tab.id}" title="Delete Tab">❌</span>
+            let table = dataTableInstances[`${tab.id}Table`];
+            let count = table ? table.rows().count() : (initialSongs[tab.id] ? initialSongs[tab.id].length : 0);
+            let imgSrc = tab.image_url || defaultImg;
+            
+            // Define classes for coloring based on song count
+            let stateClass = count > 0 ? 'filled' : 'empty';
+            let textColor = count > 0 ? 'text-success' : 'text-muted';
+
+            // Populate the Dropdown Search List
+            $categoryDropdown.append(`<option value="${tab.name}">`);
+
+            // 1. Build Visual Capsule Card (Injected stateClass and textColor)
+            let cardHTML = `
+            <div class="tab-card ${stateClass}" data-id="${tab.id}">
+                <div class="tab-card-img-wrapper" title="Hover to change image">
+                    <img src="${imgSrc}" class="tab-card-img" alt="Icon">
+                    <div class="tab-card-img-overlay">
+                        <span class="img-action upload-category-img" data-id="${tab.id}" title="Upload Image">📷</span>
+                        <span class="img-action delete-category-img" data-id="${tab.id}" title="Remove Image">🗑️</span>
                     </div>
                 </div>
-            </li>`;
-            $tabList.append(tabHTML);
+                <div class="tab-card-info">
+                    <div class="tab-card-title">${tab.name}</div>
+                    <div class="small fw-bold song-count ${textColor}">${count} Songs</div>
+                </div>
+                <div class="tab-card-actions">
+                    <span class="edit-tab" data-id="${tab.id}" title="Edit Name">✏️</span>
+                    <span class="delete-tab" data-id="${tab.id}" title="Delete Category">❌</span>
+                </div>
+            </div>`;
+            $tabGrid.append(cardHTML);
+
+            // 2. Build Hidden Bootstrap Tab Structure
+            let navHTML = `<li class="nav-item"><div class="nav-link" data-bs-toggle="tab" data-bs-target="#${tab.id}" role="tab"></div></li>`;
+            $hiddenNavList.append(navHTML);
 
             if ($(`#${tab.id}`).length === 0) {
                 let contentHTML = `
-                <div class="tab-pane fade ${isActive ? 'show active' : ''}" id="${tab.id}" role="tabpanel">
-                    <div class="table-responsive mt-3">
+                <div class="tab-pane fade" id="${tab.id}" role="tabpanel">
+                    <div class="table-responsive pt-1">
                         <table id="${tab.id}Table" class="table table-striped table-hover datatable" style="width:100%">
                             <thead class="table-dark">
-                                <tr>
-                                    <th><input type="checkbox" class="select-all-check"></th>
-                                    <th>SL</th><th>Title</th><th>Subtitle</th><th>Artist</th><th>Composer</th><th>Lyricist</th><th>Year</th><th>Folderpath</th><th style="display:none;">ID</th>
-                                </tr>
-                                <tr class="filters-row">
-                                    <th></th>
-                                    <th><input type="text" data-column="1" placeholder="Filter SL" /></th>
-                                    <th><input type="text" data-column="2" placeholder="Filter Title" /></th>
-                                    <th><input type="text" data-column="3" placeholder="Filter Subtitle" /></th>
-                                    <th><input type="text" data-column="4" placeholder="Filter Artist" /></th>
-                                    <th><input type="text" data-column="5" placeholder="Filter Composer" /></th>
-                                    <th><input type="text" data-column="6" placeholder="Filter Lyricist" /></th>
-                                    <th><input type="text" data-column="7" placeholder="Filter Year" /></th>
-                                    <th><input type="text" data-column="8" placeholder="Filter Folder" /></th>
-                                    <th style="display:none;"></th>
-                                </tr>
+                                <tr><th><input type="checkbox" class="select-all-check"></th><th>SL</th><th>Title</th><th>Subtitle</th><th>Artist</th><th>Composer</th><th>Lyricist</th><th>Year</th><th>Folderpath</th><th style="display:none;">ID</th></tr>
+                                <tr class="filters-row"><th></th><th><input type="text" data-column="1" placeholder="Filter SL" /></th><th><input type="text" data-column="2" placeholder="Filter Title" /></th><th><input type="text" data-column="3" placeholder="Filter Subtitle" /></th><th><input type="text" data-column="4" placeholder="Filter Artist" /></th><th><input type="text" data-column="5" placeholder="Filter Composer" /></th><th><input type="text" data-column="6" placeholder="Filter Lyricist" /></th><th><input type="text" data-column="7" placeholder="Filter Year" /></th><th><input type="text" data-column="8" placeholder="Filter Folder" /></th><th style="display:none;"></th></tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -318,29 +334,156 @@ $(document).ready(async function() {
                 </div>`;
                 $tabContent.append(contentHTML);
                 initDataTable(`${tab.id}Table`, tab.id);
-            } else {
-                if (isActive) $(`#${tab.id}`).addClass('show active');
-                else $(`#${tab.id}`).removeClass('show active');
             }
         });
         updateAutocomplete();
-        updateTabColors(); // Color the tabs instantly
+    }
+
+    // Dynamic Card Color Updater (Fixed to use text colors instead of background blocks)
+    function updateCardVisuals() {
+        tabsData.forEach(tab => {
+            let table = dataTableInstances[`${tab.id}Table`];
+            // Ensure accurate count fallback for uninitialized tables
+            let count = table ? table.rows().count() : (initialSongs[tab.id] ? initialSongs[tab.id].length : 0);
+            let card = $(`.tab-card[data-id="${tab.id}"]`);
+            
+            card.removeClass('empty filled');
+            if (count > 0) {
+                card.addClass('filled');
+                card.find('.song-count').text(`${count} Songs`).removeClass('text-muted').addClass('text-success');
+            } else {
+                card.addClass('empty');
+                card.find('.song-count').text(`0 Songs`).removeClass('text-success').addClass('text-muted');
+            }
+        });
     }
 
     // ==========================================
-    // 3. TAB MANAGEMENT
+    // CLOUD IMAGE UPLOAD & DELETE LOGIC
+    // ==========================================
+    $(document).on('click', '.upload-category-img', function(e) {
+        e.stopPropagation();
+        $('#hiddenImgUpload').data('target-tab', $(this).data('id')).click();
+    });
+
+    $('#hiddenImgUpload').on('change', async function(e) {
+        let file = e.target.files[0];
+        if (!file) return;
+        let tabId = $(this).data('target-tab');
+        let tab = tabsData.find(t => t.id === tabId);
+
+        try {
+            // 1. Delete old image from Supabase Storage if it exists
+            if (tab.image_url && tab.image_url.includes('supabase.co')) {
+                let oldPath = tab.image_url.split('/').pop();
+                await supabase.storage.from('category_images').remove([oldPath]);
+            }
+            // 2. Upload new image
+            let fileName = `${tabId}_${Date.now()}.${file.name.split('.').pop()}`;
+            const { error: uploadError } = await supabase.storage.from('category_images').upload(fileName, file);
+            if (uploadError) throw uploadError;
+            // 3. Get URL & Save to Database
+            const { data: urlData } = supabase.storage.from('category_images').getPublicUrl(fileName);
+            const { error: dbError } = await supabase.from('tabs').update({ image_url: urlData.publicUrl }).eq('id', tabId);
+            if (dbError) throw dbError;
+
+            tab.image_url = urlData.publicUrl;
+            renderDashboardAndTabs();
+        } catch (err) {
+            console.error("Storage Error:", err);
+            alert("Upload failed. Ensure you created the 'image_url' column and 'category_images' bucket in Supabase.");
+        }
+        $(this).val('');
+    });
+
+    $(document).on('click', '.delete-category-img', async function(e) {
+        e.stopPropagation();
+        let tabId = $(this).data('id');
+        let tab = tabsData.find(t => t.id === tabId);
+        if (!tab.image_url) return alert("This already uses the default icon.");
+
+        if (confirm("Remove custom image and revert to default?")) {
+            try {
+                if (tab.image_url.includes('supabase.co')) {
+                    let oldPath = tab.image_url.split('/').pop();
+                    await supabase.storage.from('category_images').remove([oldPath]);
+                }
+                await supabase.from('tabs').update({ image_url: null }).eq('id', tabId);
+                tab.image_url = null;
+                renderDashboardAndTabs();
+            } catch (err) {
+                console.error("Delete Error:", err);
+                alert("Failed to delete image from cloud.");
+            }
+        }
+    });
+
+    // ==========================================
+    // 3. MASTER-DETAIL NAVIGATION LOGIC
+    // ==========================================
+    
+    // Open a Category
+    $(document).on('click', '.tab-card', function(e) {
+        if ($(e.target).hasClass('edit-tab') || $(e.target).hasClass('delete-tab') || $(e.target).hasClass('upload-category-img') || $(e.target).hasClass('delete-category-img')) return; // Ignore if clicking actions
+        
+        let tabId = $(this).data('id');
+        let tabName = tabsData.find(t => t.id === tabId).name;
+
+        // Activate hidden bootstrap tab
+        let tabTriggerEl = document.querySelector(`[data-bs-target="#${tabId}"]`);
+        bootstrap.Tab.getOrCreateInstance(tabTriggerEl).show();
+
+        // Switch Views
+        let tab = tabsData.find(t => t.id === tabId);
+        $('#activeCategoryLabel').text(tabName);
+        $('#detailCategoryImg').attr('src', tab.image_url || defaultImg).show();
+        $('#view-dashboard').addClass('d-none');
+        $('#view-detail').removeClass('d-none').addClass('d-flex');
+        $('#backToHomeBtn').removeClass('d-none'); // Show Back Button
+
+        // Force datatables column width calculation
+        setTimeout(function() {
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        }, 15);
+    });
+
+    // Go Back to Dashboard
+    $('#backToHomeBtn').on('click', function() {
+        $('#view-detail').removeClass('d-flex').addClass('d-none');
+        $('#view-dashboard').removeClass('d-none');
+        $('#backToHomeBtn').addClass('d-none'); // Hide Back Button
+        
+        // Deactivate hidden tabs to prevent memory quirks
+        $('#myTab .nav-link').removeClass('active');
+        $('.tab-pane').removeClass('show active');
+        
+        updateCardVisuals();
+    });
+
+    // Dashboard Local Filter
+    $('#dashboardFilter').on('input keyup', function() {
+        let val = $(this).val().toLowerCase();
+        $('.tab-card').each(function() {
+            let name = $(this).find('.tab-card-title').text().toLowerCase();
+            $(this).toggle(name.includes(val));
+        });
+    });
+
+
+    // ==========================================
+    // 4. TAB MANAGEMENT (Create/Edit/Delete)
     // ==========================================
     $('#addTabBtn').on('click', async function() {
-        let tabName = prompt("Enter a name for the new tab:");
+        let tabName = prompt("Enter a name for the new Category:");
         if (tabName && tabName.trim() !== "") {
             let cleanName = tabName.trim();
-            if (tabsData.some(t => t.name.toLowerCase() === cleanName.toLowerCase())) return alert(`⚠️ The tab "${cleanName}" already exists!`);
+            if (tabsData.some(t => t.name.toLowerCase() === cleanName.toLowerCase())) return alert(`⚠️ The category "${cleanName}" already exists!`);
             let newId = 'tab_' + Date.now(); 
             let newTab = { id: newId, name: cleanName };
             const { error } = await supabase.from('tabs').insert([newTab]);
-            if(error) return alert("Error saving tab to cloud.");
+            if(error) return alert("Error saving to cloud.");
             tabsData.push(newTab);
-            renderTabs();
+            renderDashboardAndTabs();
         }
     });
 
@@ -348,14 +491,14 @@ $(document).ready(async function() {
         e.stopPropagation(); 
         let id = $(this).data('id');
         let tab = tabsData.find(t => t.id === id);
-        let newName = prompt("Edit tab name:", tab.name);
+        let newName = prompt("Edit category name:", tab.name);
         if (newName && newName.trim() !== "") {
             let cleanName = newName.trim();
-            if (tabsData.some(t => t.name.toLowerCase() === cleanName.toLowerCase() && t.id !== id)) return alert(`⚠️ The tab "${cleanName}" already exists!`);
+            if (tabsData.some(t => t.name.toLowerCase() === cleanName.toLowerCase() && t.id !== id)) return alert(`⚠️ The category "${cleanName}" already exists!`);
             const { error } = await supabase.from('tabs').update({ name: cleanName }).eq('id', id);
-            if(error) return alert("Error updating tab in cloud.");
+            if(error) return alert("Error updating in cloud.");
             tab.name = cleanName;
-            renderTabs();
+            renderDashboardAndTabs();
         }
     });
 
@@ -363,26 +506,26 @@ $(document).ready(async function() {
         e.stopPropagation(); 
         let id = $(this).data('id');
         let tab = tabsData.find(t => t.id === id);
-        if (confirm(`⚠️ WARNING: Are you sure you want to delete the "${tab.name}" tab and all its songs?`)) {
+        if (confirm(`⚠️ WARNING: Are you sure you want to delete "${tab.name}" and all its songs?`)) {
             const { error } = await supabase.from('tabs').delete().eq('id', id);
-            if(error) return alert("Error deleting tab from cloud.");
+            if(error) return alert("Error deleting from cloud.");
             tabsData = tabsData.filter(t => t.id !== id);
             if (dataTableInstances[`${id}Table`]) {
                 dataTableInstances[`${id}Table`].destroy();
                 delete dataTableInstances[`${id}Table`];
             }
             $(`#${id}`).remove(); 
-            renderTabs(); 
+            renderDashboardAndTabs(); 
         }
     });
 
     $('#sortTabs').on('change', function() {
         currentSort = $(this).val();
-        renderTabs();
+        renderDashboardAndTabs();
     });
 
     // ==========================================
-    // 4. DATA ENTRY (SYNCED WITH CLOUD)
+    // 5. DATA ENTRY (SYNCED WITH CLOUD)
     // ==========================================
     function getActiveTableId() {
         return $('#myTab .nav-link.active').attr('data-bs-target')?.replace('#', '');
@@ -390,47 +533,33 @@ $(document).ready(async function() {
 
     $('#saveSongBtn').on('click', async function() {
         let activeTabId = getActiveTableId();
-        if (!activeTabId) return alert("Please create and select a tab first!");
+        if (!activeTabId) return alert("Error locating active category.");
 
         let activeTable = dataTableInstances[`${activeTabId}Table`];
         let autoSL = (activeTable.rows().count() + 1).toString();
 
         let formValues = {
-            title: $('#songTitle').val(), subtitle: $('#songSubtitle').val(),
-            artist: $('#songArtist').val(), composer: $('#songComposer').val(),
-            lyricist: $('#songLyricist').val(), year: $('#songYear').val(),
-            folder: $('#songFolderpath').val()
+            title: $('#songTitle').val(), subtitle: $('#songSubtitle').val(), artist: $('#songArtist').val(), 
+            composer: $('#songComposer').val(), lyricist: $('#songLyricist').val(), year: $('#songYear').val(), folder: $('#songFolderpath').val()
         };
 
         if (formValues.title === "") return alert("Title is required!");
 
-        let newSong = {
-            tab_id: activeTabId, sl: autoSL, title: formValues.title, subtitle: formValues.subtitle,
-            artist: formValues.artist, composer: formValues.composer, lyricist: formValues.lyricist,
-            release_year: formValues.year, folderpath: formValues.folder
-        };
+        let newSong = { tab_id: activeTabId, sl: autoSL, title: formValues.title, subtitle: formValues.subtitle, artist: formValues.artist, composer: formValues.composer, lyricist: formValues.lyricist, release_year: formValues.year, folderpath: formValues.folder };
 
         const { data, error } = await supabase.from('songs').insert([newSong]).select();
         if(error) return alert("Error saving song to cloud.");
 
-        activeTable.row.add([
-            '<input type="checkbox" class="row-check">',
-            autoSL, formValues.title, formValues.subtitle, formValues.artist,
-            formValues.composer, formValues.lyricist, formValues.year, formValues.folder, data[0].id
-        ]).draw(false);
-
+        activeTable.row.add(['<input type="checkbox" class="row-check">', autoSL, formValues.title, formValues.subtitle, formValues.artist, formValues.composer, formValues.lyricist, formValues.year, formValues.folder, data[0].id]).draw(false);
         songToTabMap[formValues.title] = activeTabId; 
 
         updateAutocomplete();
-        updateTabColors();
         $('#addSongModal').modal('hide');
         $('#addSongForm')[0].reset();
     });
 
     $('#csvUpload').on('change', async function(e) {
         let activeTabId = getActiveTableId();
-        if (!activeTabId) return alert("Please create and select a tab first!");
-
         let activeTable = dataTableInstances[`${activeTabId}Table`];
         let baseSL = activeTable.rows().count();
         let file = e.target.files[0];
@@ -451,10 +580,7 @@ $(document).ready(async function() {
 
                 for (let i = startIndex; i < rows.length; i++) {
                     if (rows[i].trim() === "") continue; 
-                    let cols = [];
-                    let currentStr = "";
-                    let inQuotes = false;
-                    let rowStr = rows[i];
+                    let cols = []; let currentStr = ""; let inQuotes = false; let rowStr = rows[i];
                     for (let j = 0; j < rowStr.length; j++) {
                         let char = rowStr[j];
                         if (char === '"') inQuotes = !inQuotes;
@@ -465,11 +591,7 @@ $(document).ready(async function() {
                     
                     if (cols.join('').trim() === "") continue;
                     while (cols.length < 7) cols.push(""); 
-                    dataToAddDB.push({
-                        tab_id: activeTabId, sl: (baseSL + dataToAddDB.length + 1).toString(), 
-                        title: cols[0], subtitle: cols[1], artist: cols[2], composer: cols[3], 
-                        lyricist: cols[4], release_year: cols[5], folderpath: cols[6]
-                    });
+                    dataToAddDB.push({ tab_id: activeTabId, sl: (baseSL + dataToAddDB.length + 1).toString(), title: cols[0], subtitle: cols[1], artist: cols[2], composer: cols[3], lyricist: cols[4], release_year: cols[5], folderpath: cols[6] });
                 }
             } else {
                 let data = new Uint8Array(event.target.result);
@@ -482,13 +604,7 @@ $(document).ready(async function() {
                     let cols = rows[i];
                     if (cols.join('').trim() === "") continue; 
                     while (cols.length < 7) cols.push(""); 
-                    dataToAddDB.push({
-                        tab_id: activeTabId, sl: (baseSL + dataToAddDB.length + 1).toString(), 
-                        title: String(cols[0] || "").trim(), subtitle: String(cols[1] || "").trim(), 
-                        artist: String(cols[2] || "").trim(), composer: String(cols[3] || "").trim(), 
-                        lyricist: String(cols[4] || "").trim(), release_year: String(cols[5] || "").trim(), 
-                        folderpath: String(cols[6] || "").trim()
-                    });
+                    dataToAddDB.push({ tab_id: activeTabId, sl: (baseSL + dataToAddDB.length + 1).toString(), title: String(cols[0] || "").trim(), subtitle: String(cols[1] || "").trim(), artist: String(cols[2] || "").trim(), composer: String(cols[3] || "").trim(), lyricist: String(cols[4] || "").trim(), release_year: String(cols[5] || "").trim(), folderpath: String(cols[6] || "").trim() });
                 }
             }
 
@@ -498,15 +614,11 @@ $(document).ready(async function() {
 
                 let dataToAddUI = insertedData.map(s => {
                     songToTabMap[s.title] = activeTabId; 
-                    return [
-                        '<input type="checkbox" class="row-check">',
-                        s.sl, s.title, s.subtitle, s.artist, s.composer, s.lyricist, s.release_year, s.folderpath, s.id
-                    ];
+                    return ['<input type="checkbox" class="row-check">', s.sl, s.title, s.subtitle, s.artist, s.composer, s.lyricist, s.release_year, s.folderpath, s.id];
                 });
                 
                 activeTable.rows.add(dataToAddUI).draw(false);
                 updateAutocomplete();
-                updateTabColors();
                 alert(`Successfully imported ${dataToAddDB.length} songs!`);
             }
         };
@@ -517,7 +629,7 @@ $(document).ready(async function() {
     });
 
     // ==========================================
-    // 5. SELECTION & DELETE MECHANISMS
+    // 6. SELECTION & DELETE MECHANISMS
     // ==========================================
     $(document).on('change', '.select-all-check', function() {
         let isChecked = $(this).prop('checked');
@@ -529,20 +641,16 @@ $(document).ready(async function() {
         let activeTabId = getActiveTableId();
         let activeTable = dataTableInstances[`${activeTabId}Table`];
         let selectedCheckboxes = $(`#${activeTabId}Table tbody .row-check:checked`);
-        
         if (selectedCheckboxes.length === 0) return alert("Please select at least one song to delete.");
 
         if (confirm(`Are you sure you want to delete the ${selectedCheckboxes.length} selected songs?`)) {
-            let idsToDelete = [];
-            let rowsToRemove = [];
-
+            let idsToDelete = []; let rowsToRemove = [];
             selectedCheckboxes.each(function() {
                 let row = $(this).closest('tr');
                 let rowData = activeTable.row(row).data();
                 idsToDelete.push(rowData[9]); 
                 rowsToRemove.push(row);
             });
-
             const { error } = await supabase.from('songs').delete().in('id', idsToDelete);
             if (error) return alert("Error deleting songs from cloud.");
 
@@ -550,7 +658,6 @@ $(document).ready(async function() {
             activeTable.draw(false);
             $('.select-all-check').prop('checked', false);
             updateAutocomplete();
-            updateTabColors();
             alert("Selected songs deleted successfully.");
         }
     });
@@ -563,12 +670,11 @@ $(document).ready(async function() {
             if (error) return alert("Error clearing songs from cloud.");
             dataTableInstances[`${activeTabId}Table`].clear().draw();
             updateAutocomplete();
-            updateTabColors();
         }
     });
 
     // ==========================================
-    // 6. EXCEL EXPORT MECHANISMS
+    // 7. EXCEL EXPORT MECHANISMS
     // ==========================================
     function exportToExcel(data, filename) {
         const worksheet = XLSX.utils.json_to_sheet(data);
@@ -582,8 +688,7 @@ $(document).ready(async function() {
         let activeTabName = tabsData.find(t => t.id === activeTabId).name;
         let table = dataTableInstances[`${activeTabId}Table`];
         let data = table.rows().data().toArray().map(row => ({
-            "SL": row[1], "Title": row[2], "Subtitle": row[3], "Artist": row[4],
-            "Composer": row[5], "Lyricist": row[6], "Year": row[7], "FolderPath": row[8]
+            "SL": row[1], "Title": row[2], "Subtitle": row[3], "Artist": row[4], "Composer": row[5], "Lyricist": row[6], "Year": row[7], "FolderPath": row[8]
         }));
         if (data.length === 0) return alert("No data to export in this tab.");
         exportToExcel(data, `HarmoniQ_${activeTabName}`);
@@ -594,29 +699,36 @@ $(document).ready(async function() {
         if (error) return alert("Error fetching data for export.");
         if (!allSongs || allSongs.length === 0) return alert("No data found in any tab.");
         let formattedData = allSongs.map(s => ({
-            "Category/Tab": s.tabs ? s.tabs.name : "Uncategorized",
-            "SL": s.sl, "Title": s.title, "Subtitle": s.subtitle, "Artist": s.artist,
-            "Composer": s.composer, "Lyricist": s.lyricist, "Year": s.release_year, "FolderPath": s.folderpath
+            "Category/Tab": s.tabs ? s.tabs.name : "Uncategorized", "SL": s.sl, "Title": s.title, "Subtitle": s.subtitle, "Artist": s.artist, "Composer": s.composer, "Lyricist": s.lyricist, "Year": s.release_year, "FolderPath": s.folderpath
         }));
         exportToExcel(formattedData, "HarmoniQ_Master_Repository");
     });
 
     // ==========================================
-    // 7. GLOBAL SEARCH, CLEAR, & AUTO-REDIRECT
+    // 8. GLOBAL SEARCH & REDIRECT LOGIC
     // ==========================================
     $('#globalSearch').on('input keyup', function(e) {
         let searchTerm = this.value;
         $('#clearSearch').toggle(searchTerm.length > 0);
-        Object.values(dataTableInstances).forEach(dt => {
-            dt.column(2).search(searchTerm).draw();
-        });
+        Object.values(dataTableInstances).forEach(dt => { dt.column(2).search(searchTerm).draw(); });
 
         if (e.type === 'input' && songToTabMap[searchTerm]) {
             let targetTabId = songToTabMap[searchTerm];
+            let tabName = tabsData.find(t => t.id === targetTabId).name;
+
+            // Activate hidden bootstrap tab
             let tabTriggerEl = document.querySelector(`[data-bs-target="#${targetTabId}"]`);
-            if (tabTriggerEl) {
-                bootstrap.Tab.getOrCreateInstance(tabTriggerEl).show();
-            }
+            if (tabTriggerEl) bootstrap.Tab.getOrCreateInstance(tabTriggerEl).show();
+
+            // Switch to Detail View automatically
+            let tab = tabsData.find(t => t.id === targetTabId);
+            $('#activeCategoryLabel').text(tabName);
+            $('#detailCategoryImg').attr('src', tab.image_url || defaultImg).show();
+            $('#view-dashboard').addClass('d-none');
+            $('#view-detail').removeClass('d-none').addClass('d-flex');
+            $('#backToHomeBtn').removeClass('d-none'); // Show Back Button
+            
+            setTimeout(function() { $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust(); }, 15);
         }
     });
 
@@ -634,19 +746,10 @@ $(document).ready(async function() {
         songTitles.forEach(function(title) { dataList.append('<option value="' + title + '">'); });
     }
 
-    // ==========================================
-    // 8. TAB SWITCH RE-CALCULATION FIX
-    // ==========================================
-    $(document).on('shown.bs.tab', 'div[data-bs-toggle="tab"]', function () {
-        setTimeout(function() {
-            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
-        }, 10);
-    });
-
     // Register Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('ServiceWorker failed: ', err));
+            navigator.serviceWorker.register('./service-worker.js').catch(err => console.log('SW failed: ', err));
         });
     }
 
